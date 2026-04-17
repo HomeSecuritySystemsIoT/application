@@ -2,7 +2,9 @@
 
 import { db } from "@/drizzle/db"
 import { sessions, SessionSelect } from "@/drizzle/schema"
+import { hashSecret } from "@/lib/utils"
 import { createHash } from "crypto"
+import { eq } from "drizzle-orm"
 
 function generateSecureRandomString(): string {
   // Human readable alphabet (a-z, 0-9 without l, o, 0, 1 to avoid confusion)
@@ -30,8 +32,7 @@ export async function createSession(
 ): Promise<SessionWithToken | null> {
   const id = generateSecureRandomString()
   const secret = generateSecureRandomString()
-  const secretHash = createHash("sha256").update(secret, "utf-8").digest("hex")
-
+  const secretHash = hashSecret(secret)
   const token = id + "." + secret
 
   let res = await db
@@ -49,4 +50,16 @@ export async function createSession(
   sessionWithToken.token = token
 
   return sessionWithToken
+}
+
+export async function getSession(
+  sessionId: string
+): Promise<SessionSelect | null> {
+  let res = await db.select().from(sessions).where(eq(sessions.id, sessionId))
+
+  if (res.length < 1) return null
+  let session = res.at(0)
+
+  if (res.at(0) === undefined) return null
+  return res.at(0)!
 }

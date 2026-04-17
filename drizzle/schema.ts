@@ -9,8 +9,8 @@ import {
 
 export const users = pgTable("User", {
   id: serial("id").primaryKey(),
-  email: varchar("email", { length: 64 }),
-  password: varchar("password", { length: 64 }),
+  email: varchar("email", { length: 64 }).notNull(),
+  password: varchar("password", { length: 64 }).notNull(),
 })
 
 export const groups = pgTable("Group", {
