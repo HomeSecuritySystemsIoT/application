@@ -37,7 +37,7 @@ OpenCam is an open-source, self-hosted home security camera platform built for E
 
 ```bash
 git clone <repo-url>
-cd frontend-iot
+cd <folder>
 ```
 
 ### 2. Install dependencies
