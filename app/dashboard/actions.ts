@@ -5,7 +5,10 @@ import { getCurrentSession } from "@/lib/session"
 import { createGroupRecord } from "@/drizzle/actions/groups"
 import { createHouseRecord } from "@/drizzle/actions/houses"
 import { createRoomRecord } from "@/drizzle/actions/rooms"
-import { setCameraActive, setCameraMotionDetection } from "@/drizzle/actions/cameras"
+import {
+  setCameraActive,
+  setCameraMotionDetection,
+} from "@/drizzle/actions/cameras"
 
 // ── Group ─────────────────────────────────────────────────────────────────────
 
@@ -88,6 +91,6 @@ export async function toggleCameraMotionDetection(
   motionDetection: boolean,
   path: string
 ): Promise<void> {
-  await setCameraMotionDetection(cameraId, motionDetection, )
+  await setCameraMotionDetection(cameraId, motionDetection)
   revalidatePath(path)
 }

@@ -1,6 +1,16 @@
 import Link from "next/link"
 import { getCurrentSession } from "@/lib/session"
-import { Shield, Cpu, Eye, Lock, ArrowRight, Star, Wifi, DollarSign, GitPullRequestArrow } from "lucide-react"
+import {
+  Shield,
+  Cpu,
+  Eye,
+  Lock,
+  ArrowRight,
+  Star,
+  Wifi,
+  DollarSign,
+  GitPullRequestArrow,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -166,7 +176,8 @@ export default async function Page() {
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg">
               <Link href={user ? "/dashboard" : "/auth/signup"}>
-                {user ? "Dashboard" : "Get started"} <ArrowRight className="size-4" />
+                {user ? "Dashboard" : "Get started"}{" "}
+                <ArrowRight className="size-4" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
@@ -189,7 +200,11 @@ export default async function Page() {
           {[
             { icon: DollarSign, value: "< €15", label: "Full setup cost" },
             { icon: Wifi, value: "100%", label: "Private & self-hosted" },
-            { icon: GitPullRequestArrow, value: "MIT", label: "Open-source licence" },
+            {
+              icon: GitPullRequestArrow,
+              value: "MIT",
+              label: "Open-source licence",
+            },
           ].map(({ icon: Icon, value, label }) => (
             <div
               key={label}
@@ -314,7 +329,7 @@ export default async function Page() {
                         {initials(review.name)}
                       </div>
                       <div>
-                        <p className="text-sm font-medium leading-none">
+                        <p className="text-sm leading-none font-medium">
                           {review.name}
                         </p>
                         <p className="mt-0.5 text-xs text-muted-foreground">

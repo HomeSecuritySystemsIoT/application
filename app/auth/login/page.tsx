@@ -27,14 +27,19 @@ const initialState: LoginFormState = {
 }
 
 export default function LoginPage() {
-  const [state, formAction, isPending] = React.useActionState(login, initialState)
+  const [state, formAction, isPending] = React.useActionState(
+    login,
+    initialState
+  )
 
   return (
     <div className="flex min-h-svh items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
-          <CardDescription>Enter your credentials to access your account.</CardDescription>
+          <CardDescription>
+            Enter your credentials to access your account.
+          </CardDescription>
         </CardHeader>
 
         <Form action={formAction}>
@@ -80,9 +85,12 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? "Signing in…" : "Sign in"}
             </Button>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
-              <Link href="/auth/signup" className="text-foreground underline underline-offset-4">
+              <Link
+                href="/auth/signup"
+                className="text-foreground underline underline-offset-4"
+              >
                 Sign up
               </Link>
             </p>

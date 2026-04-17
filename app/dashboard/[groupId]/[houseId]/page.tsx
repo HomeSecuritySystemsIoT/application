@@ -96,7 +96,7 @@ export default async function HousePage({
                       <DoorOpen className="size-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="font-medium leading-none">{room.name}</p>
+                      <p className="leading-none font-medium">{room.name}</p>
                       <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                         <Camera className="size-3" />
                         {room.cameraCount}{" "}

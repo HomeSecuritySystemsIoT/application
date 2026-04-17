@@ -22,7 +22,10 @@ export async function getRoomById(roomId: number): Promise<RoomSelect | null> {
   return res.at(0) ?? null
 }
 
-export async function createRoomRecord(houseId: number, name: string): Promise<RoomSelect | null> {
+export async function createRoomRecord(
+  houseId: number,
+  name: string
+): Promise<RoomSelect | null> {
   const res = await db.insert(rooms).values({ houseId, name }).returning()
   return res.at(0) ?? null
 }

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 
 export function AccessDenied() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-4 text-center px-4">
+    <div className="flex min-h-svh flex-col items-center justify-center gap-4 px-4 text-center">
       <div className="flex size-16 items-center justify-center rounded-full border bg-muted">
         <ShieldX className="size-7 text-destructive" />
       </div>

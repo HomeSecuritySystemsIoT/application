@@ -13,7 +13,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
 import type { CreateState } from "@/app/dashboard/actions"
 
 interface CreateDialogProps {
@@ -67,7 +72,12 @@ export function CreateDialog({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="name">Name</FieldLabel>
-              <Input id="name" name="name" placeholder="e.g. My home" required />
+              <Input
+                id="name"
+                name="name"
+                placeholder="e.g. My home"
+                required
+              />
             </Field>
 
             {extraFields}
@@ -76,7 +86,11 @@ export function CreateDialog({
           </FieldGroup>
 
           <DialogFooter className="mt-6">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>

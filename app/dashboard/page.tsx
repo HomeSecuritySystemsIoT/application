@@ -57,14 +57,14 @@ export default async function DashboardPage() {
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {userGroups.map((g) => (
             <Link key={g.id} href={`/dashboard/${g.id}`}>
-              <Card className="transition-colors hover:bg-muted/50 cursor-pointer">
+              <Card className="cursor-pointer transition-colors hover:bg-muted/50">
                 <CardContent className="flex items-center justify-between p-5">
                   <div className="flex items-center gap-3">
                     <div className="flex size-10 items-center justify-center rounded-lg border bg-muted">
                       <Home className="size-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="font-medium leading-none">{g.name}</p>
+                      <p className="leading-none font-medium">{g.name}</p>
                       <p className="mt-1 text-xs text-muted-foreground capitalize">
                         {g.role}
                       </p>

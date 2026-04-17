@@ -18,7 +18,10 @@ const SESSION_COOKIE_OPTIONS = {
 function verifyPassword(plain: string, hash: string): boolean {
   const plainHash = hashSecret(plain)
   if (plainHash.length !== hash.length) return false
-  return timingSafeEqual(Buffer.from(plainHash, "utf-8"), Buffer.from(hash, "utf-8"))
+  return timingSafeEqual(
+    Buffer.from(plainHash, "utf-8"),
+    Buffer.from(hash, "utf-8")
+  )
 }
 
 export type LoginFormState = {
@@ -80,7 +83,8 @@ export async function signup(
 
   if (!email) errors.email = ["Email is required."]
   if (!password) errors.password = ["Password is required."]
-  else if (password.length < 8) errors.password = ["Must be at least 8 characters."]
+  else if (password.length < 8)
+    errors.password = ["Must be at least 8 characters."]
 
   if (Object.keys(errors).length > 0) {
     return { values: { email, password: "" }, errors }

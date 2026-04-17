@@ -30,13 +30,16 @@ export function Navbar() {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-fit">
-            <DropdownMenuLabel className="text-muted-foreground font-normal p-2">
+            <DropdownMenuLabel className="p-2 font-normal text-muted-foreground">
               {user.email}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <form action={logout}>
-                <button type="submit" className="flex w-full items-center gap-2 text-destructive cursor-pointer">
+                <button
+                  type="submit"
+                  className="flex w-full cursor-pointer items-center gap-2 text-destructive"
+                >
                   <LogOut className="size-4" />
                   Sign out
                 </button>

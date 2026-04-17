@@ -11,7 +11,10 @@ type AuthContextValue = {
   user: AuthUser | null
 }
 
-const AuthContext = createContext<AuthContextValue>({ session: null, user: null })
+const AuthContext = createContext<AuthContextValue>({
+  session: null,
+  user: null,
+})
 
 export function AuthProvider({
   children,

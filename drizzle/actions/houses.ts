@@ -15,10 +15,18 @@ export async function getHousesByGroupId(groupId: number) {
     .from(houses)
     .leftJoin(rooms, eq(rooms.houseId, houses.id))
     .where(eq(houses.groupId, groupId))
-    .groupBy(houses.id, houses.name, houses.address, houses.groupId, houses.createdAt)
+    .groupBy(
+      houses.id,
+      houses.name,
+      houses.address,
+      houses.groupId,
+      houses.createdAt
+    )
 }
 
-export async function getHouseById(houseId: number): Promise<HouseSelect | null> {
+export async function getHouseById(
+  houseId: number
+): Promise<HouseSelect | null> {
   const res = await db.select().from(houses).where(eq(houses.id, houseId))
   return res.at(0) ?? null
 }

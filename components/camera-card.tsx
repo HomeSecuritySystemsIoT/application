@@ -3,7 +3,10 @@
 import * as React from "react"
 import { MoreHorizontal, Video, VideoOff, Wifi } from "lucide-react"
 import type { CameraSelect } from "@/drizzle/schema"
-import { toggleCameraActive, toggleCameraMotionDetection } from "@/app/dashboard/actions"
+import {
+  toggleCameraActive,
+  toggleCameraMotionDetection,
+} from "@/app/dashboard/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
@@ -23,7 +26,9 @@ export function CameraCard({
   path: string
 }) {
   const [isActive, setIsActive] = React.useState(camera.isActive)
-  const [motionDetection, setMotionDetection] = React.useState(camera.motionDetection)
+  const [motionDetection, setMotionDetection] = React.useState(
+    camera.motionDetection
+  )
   const [isPending, startTransition] = React.useTransition()
 
   function handleActiveChange(checked: boolean) {
@@ -43,7 +48,7 @@ export function CameraCard({
   return (
     <Card className="overflow-hidden">
       {/* Feed area */}
-      <div className="relative bg-neutral-950 aspect-video flex items-center justify-center">
+      <div className="relative flex aspect-video items-center justify-center bg-neutral-950">
         {isActive ? (
           <>
             {/* Simulated scanline grid */}
@@ -60,7 +65,7 @@ export function CameraCard({
             </div>
             {/* LIVE badge */}
             <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
-              <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
+              <span className="size-1.5 animate-pulse rounded-full bg-red-500" />
               LIVE
             </div>
           </>

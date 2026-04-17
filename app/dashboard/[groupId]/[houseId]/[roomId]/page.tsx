@@ -17,7 +17,11 @@ export default async function RoomPage({
   const { user } = await getCurrentSession()
   if (!user) redirect("/auth/login")
 
-  const { groupId: groupIdStr, houseId: houseIdStr, roomId: roomIdStr } = await params
+  const {
+    groupId: groupIdStr,
+    houseId: houseIdStr,
+    roomId: roomIdStr,
+  } = await params
   const groupId = Number(groupIdStr)
   const houseId = Number(houseIdStr)
   const roomId = Number(roomIdStr)
@@ -33,7 +37,8 @@ export default async function RoomPage({
 
   if (!group || !house || !room) notFound()
   // Verify membership, house→group, and room→house relationships
-  if (!member || house.groupId !== groupId || room.houseId !== houseId) return <AccessDenied />
+  if (!member || house.groupId !== groupId || room.houseId !== houseId)
+    return <AccessDenied />
 
   const path = `/dashboard/${groupId}/${houseId}/${roomId}`
 
@@ -51,7 +56,8 @@ export default async function RoomPage({
       <div className="mt-6">
         <h1 className="text-2xl font-bold tracking-tight">{room.name}</h1>
         <p className="text-sm text-muted-foreground">
-          {cameras.length} {cameras.length === 1 ? "camera" : "cameras"} connected
+          {cameras.length} {cameras.length === 1 ? "camera" : "cameras"}{" "}
+          connected
         </p>
       </div>
 

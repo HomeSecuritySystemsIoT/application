@@ -15,23 +15,39 @@ export async function getGroupsForUser(userId: number) {
     .from(groupMembers)
     .innerJoin(groups, eq(groupMembers.groupId, groups.id))
     .where(eq(groupMembers.userId, userId))
-    .groupBy(groups.id, groups.name, groups.createdBy, groups.createdAt, groupMembers.role)
+    .groupBy(
+      groups.id,
+      groups.name,
+      groups.createdBy,
+      groups.createdAt,
+      groupMembers.role
+    )
 }
 
-export async function getGroupById(groupId: number): Promise<GroupSelect | null> {
+export async function getGroupById(
+  groupId: number
+): Promise<GroupSelect | null> {
   const res = await db.select().from(groups).where(eq(groups.id, groupId))
   return res.at(0) ?? null
 }
 
-export async function isGroupMember(groupId: number, userId: number): Promise<boolean> {
+export async function isGroupMember(
+  groupId: number,
+  userId: number
+): Promise<boolean> {
   const res = await db
     .select({ id: groupMembers.id })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
+    .where(
+      and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId))
+    )
   return res.length > 0
 }
 
-export async function createGroupRecord(name: string, userId: number): Promise<GroupSelect | null> {
+export async function createGroupRecord(
+  name: string,
+  userId: number
+): Promise<GroupSelect | null> {
   const res = await db
     .insert(groups)
     .values({ name, createdBy: userId })

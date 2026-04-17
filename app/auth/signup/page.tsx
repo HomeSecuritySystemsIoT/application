@@ -28,7 +28,10 @@ const initialState: SignupFormState = {
 }
 
 export default function SignupPage() {
-  const [state, formAction, isPending] = React.useActionState(signup, initialState)
+  const [state, formAction, isPending] = React.useActionState(
+    signup,
+    initialState
+  )
 
   return (
     <div className="flex min-h-svh items-center justify-center p-4">
@@ -83,9 +86,12 @@ export default function SignupPage() {
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? "Creating account…" : "Create account"}
             </Button>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/auth/login" className="text-foreground underline underline-offset-4">
+              <Link
+                href="/auth/login"
+                className="text-foreground underline underline-offset-4"
+              >
                 Sign in
               </Link>
             </p>

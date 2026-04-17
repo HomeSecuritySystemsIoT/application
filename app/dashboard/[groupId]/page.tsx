@@ -103,7 +103,7 @@ export default async function GroupPage({
                       <Building2 className="size-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="font-medium leading-none">{house.name}</p>
+                      <p className="leading-none font-medium">{house.name}</p>
                       {house.address ? (
                         <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                           <MapPin className="size-3" />
