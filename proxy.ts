@@ -1,66 +1,99 @@
-// proxy.ts
 import { type NextRequest, NextResponse } from "next/server"
+import { createHash, timingSafeEqual } from "node:crypto"
 import { db } from "@/drizzle/db"
 import { sessions } from "@/drizzle/schema"
 import { eq } from "drizzle-orm"
 
-const SESSION_COOKIE_NAME = "report-map-session-id"
+export const runtime = "nodejs"
 
-const protectedRoutes = ["/dashboard", "/protected", "/report/create/"]
-const authRoutes = ["/auth"]
+const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000 // 30 days in ms
 
-const MAX_TIME_SESSION = 60 * 60 * 24 * 30 // 30 days
+const protectedRoutes = ["/dashboard"]
+const authRoutes = ["/auth/login", "/auth/signup"]
 
-// Routes that should NEVER be intercepted (your API + static stuff)
-const ignoredRoutes = ["/auth/login"]
+function hashSecret(secret: string): string {
+  return createHash("sha256").update(secret, "utf-8").digest("hex")
+}
 
-async function validateSession(sessionId: string): Promise<boolean> {
-  const res = await db
-    .select({ createdAt: sessions.createdAt })
+function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  return timingSafeEqual(Buffer.from(a, "utf-8"), Buffer.from(b, "utf-8"))
+}
+
+async function validateSession(token: string): Promise<boolean> {
+  const parts = token.split(".")
+  if (parts.length !== 2) return false
+
+  const [sessionId, sessionSecret] = parts
+
+  const rows = await db
+    .select()
     .from(sessions)
     .where(eq(sessions.id, sessionId))
 
-  if (res.length === 0) return false
+  const session = rows.at(0)
+  if (!session) return false
 
-  const createdAt =
-    res[0].createdAt instanceof Date
-      ? res[0].createdAt.getTime()
-      : Number(res[0].createdAt)
+  // Check expiry
+  if (Date.now() - session.createdAt.getTime() >= SESSION_MAX_AGE_MS) {
+    await db.delete(sessions).where(eq(sessions.id, sessionId))
+    return false
+  }
 
-  return Date.now() - createdAt >= MAX_TIME_SESSION
+  // Verify secret
+  const secretHash = hashSecret(sessionSecret)
+  if (!constantTimeEqual(secretHash, session.secretHash)) {
+    await db.delete(sessions).where(eq(sessions.id, sessionId))
+    return false
+  }
+
+  return true
 }
 
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname
+  const token = req.cookies.get("session")?.value
 
-  // Never touch the auth API route
-  if (ignoredRoutes.some((route) => path.startsWith(route))) {
-    return NextResponse.next()
-  }
-
-  const sessionId = req.cookies.get(SESSION_COOKIE_NAME)?.value
   const isProtectedRoute = protectedRoutes.some((route) =>
     path.startsWith(route)
   )
-  const isAuthRoute = authRoutes.includes(path) || path === "/auth"
+  const isAuthRoute = authRoutes.some((route) => path.startsWith(route))
 
-  if (isProtectedRoute && !sessionId) {
-    const url = new URL("/auth", req.url)
-    url.searchParams.set("redirectTo", path) // ← guarda la ruta original
+  // No cookie on a protected route → redirect to login
+  if (isProtectedRoute && !token) {
+    const url = new URL("/auth/login", req.url)
+    url.searchParams.set("redirectTo", path)
     return NextResponse.redirect(url)
   }
 
-  if (sessionId && (isProtectedRoute || isAuthRoute)) {
-    const isValid = await validateSession(sessionId)
-
-    if (isProtectedRoute && !isValid) {
-      const url = new URL("/auth", req.url)
-      url.searchParams.set("redirectTo", path)
-      return NextResponse.redirect(url)
+  if (token && (isProtectedRoute || isAuthRoute)) {
+    let isValid = false
+    try {
+      isValid = await validateSession(token)
+    } catch {
+      // DB unreachable — don't lock users out
+      return NextResponse.next()
     }
 
+    // Expired/invalid session on a protected route
+    if (isProtectedRoute && !isValid) {
+      const res = NextResponse.redirect(
+        new URL(`/auth/login?redirectTo=${path}`, req.url)
+      )
+      res.cookies.delete("session")
+      return res
+    }
+
+    // Already authenticated, redirect away from auth pages
     if (isAuthRoute && isValid) {
       return NextResponse.redirect(new URL("/", req.url))
+    }
+
+    // Valid session but cookie is stale (expired in DB) — clear it
+    if (!isValid) {
+      const res = NextResponse.next()
+      res.cookies.delete("session")
+      return res
     }
   }
 

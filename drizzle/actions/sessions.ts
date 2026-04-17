@@ -2,7 +2,7 @@
 
 import { db } from "@/drizzle/db"
 import { sessions, SessionSelect } from "@/drizzle/schema"
-import { hashSecret } from "@/lib/utils"
+import { hashSecret } from "@/lib/session"
 import { createHash } from "crypto"
 import { eq } from "drizzle-orm"
 
@@ -62,4 +62,8 @@ export async function getSession(
 
   if (res.at(0) === undefined) return null
   return res.at(0)!
+}
+
+export async function deleteSession(sessionId: string): Promise<void> {
+  await db.delete(sessions).where(eq(sessions.id, sessionId))
 }

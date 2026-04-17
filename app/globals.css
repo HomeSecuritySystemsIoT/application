@@ -116,6 +116,19 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
+@keyframes carousel {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.carousel-track {
+  animation: carousel 40s linear infinite;
+}
+
+.carousel-track:hover {
+  animation-play-state: paused;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

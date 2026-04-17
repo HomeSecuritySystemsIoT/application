@@ -22,6 +22,13 @@ export async function createUser(
   return user
 }
 
+export async function getUserByEmail(email: string): Promise<UserSelect | null> {
+  let res = await db.select().from(users).where(eq(users.email, email))
+
+  if (res.length < 1) return null
+  return res.at(0)!
+}
+
 export async function getUser(userId: number): Promise<UserSelect | null> {
   let res = await db.select().from(users).where(eq(users.id, userId))
 
