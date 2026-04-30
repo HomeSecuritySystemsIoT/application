@@ -8,7 +8,7 @@ import {
   toggleCameraMotionDetection,
 } from "@/app/dashboard/actions"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardHeader } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import {
   DropdownMenu,
@@ -17,6 +17,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+function useCameraFeed(deviceId: string | null, active: boolean) {
+  const [frameSrc, setFrameSrc] = React.useState<string | null>(null)
+  const prevUrl = React.useRef<string | null>(null)
+
+  React.useEffect(() => {
+    if (!deviceId || !active) return
+
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
+    const ws = new WebSocket(`${protocol}//${window.location.hostname}:7890?device=${deviceId}`)
+    ws.binaryType = "arraybuffer"
+
+    ws.onmessage = (event) => {
+      const blob = new Blob([event.data], { type: "image/jpeg" })
+      const url = URL.createObjectURL(blob)
+      setFrameSrc(url)
+      if (prevUrl.current) URL.revokeObjectURL(prevUrl.current)
+      prevUrl.current = url
+    }
+
+    ws.onclose = () => setFrameSrc(null)
+
+    return () => {
+      ws.close()
+      if (prevUrl.current) URL.revokeObjectURL(prevUrl.current)
+    }
+  }, [deviceId, active])
+
+  return frameSrc
+}
 
 export function CameraCard({
   camera,
@@ -30,6 +60,7 @@ export function CameraCard({
     camera.motionDetection
   )
   const [isPending, startTransition] = React.useTransition()
+  const frameSrc = useCameraFeed(camera.deviceId ?? null, isActive)
 
   function handleActiveChange(checked: boolean) {
     setIsActive(checked)
@@ -51,22 +82,32 @@ export function CameraCard({
       <div className="relative flex aspect-video items-center justify-center bg-neutral-950">
         {isActive ? (
           <>
-            {/* Simulated scanline grid */}
-            <div
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)",
-              }}
-            />
-            <div className="flex flex-col items-center gap-2 text-neutral-500">
-              <Video className="size-8" />
-              <span className="text-xs">No signal — waiting for device</span>
-            </div>
+            {frameSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={frameSrc}
+                alt={`${camera.name} feed`}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <>
+                <div
+                  className="absolute inset-0 opacity-10"
+                  style={{
+                    backgroundImage:
+                      "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)",
+                  }}
+                />
+                <div className="flex flex-col items-center gap-2 text-neutral-500">
+                  <Video className="size-8" />
+                  <span className="text-xs">No signal — waiting for device</span>
+                </div>
+              </>
+            )}
             {/* LIVE badge */}
             <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
-              <span className="size-1.5 animate-pulse rounded-full bg-red-500" />
-              LIVE
+              <span className={`size-1.5 rounded-full ${frameSrc ? "animate-pulse bg-red-500" : "bg-neutral-500"}`} />
+              {frameSrc ? "LIVE" : "WAITING"}
             </div>
           </>
         ) : (
