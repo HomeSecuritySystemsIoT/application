@@ -33,12 +33,10 @@ export default async function RootLayout({
       )}
     >
       <body>
-        <ThemeProvider>
-          <AuthProvider session={session} user={user}>
-            <Navbar />
-            {children}
-          </AuthProvider>
-        </ThemeProvider>
+        <AuthProvider session={session} user={user}>
+          <Navbar />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )
