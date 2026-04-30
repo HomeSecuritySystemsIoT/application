@@ -1,18 +1,37 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Users, Home, ChevronRight } from "lucide-react"
+import { Users, Home, ChevronRight, ShieldCheck } from "lucide-react"
 import { getCurrentSession } from "@/lib/session"
 import { getGroupsForUser } from "@/drizzle/actions/groups"
 import { DashboardBreadcrumb } from "@/components/dashboard-breadcrumb"
 import { CreateDialog } from "@/components/create-dialog"
 import { createGroup } from "@/app/dashboard/actions"
 import { Card, CardContent } from "@/components/ui/card"
+import { AdminFeedCard } from "@/components/admin-feed-card"
+
+async function getConnectedDevices(): Promise<string[]> {
+  try {
+    const res = await fetch("http://localhost:7890/devices", {
+      cache: "no-store",
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    return data.devices ?? []
+  } catch {
+    return []
+  }
+}
 
 export default async function DashboardPage() {
   const { user } = await getCurrentSession()
   if (!user) redirect("/auth/login")
 
-  const userGroups = await getGroupsForUser(user.id)
+  const isAdmin = user.email === process.env.ADMIN_EMAIL
+
+  const [userGroups, connectedDevices] = await Promise.all([
+    getGroupsForUser(user.id),
+    isAdmin ? getConnectedDevices() : Promise.resolve([]),
+  ])
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -33,6 +52,30 @@ export default async function DashboardPage() {
           submitLabel="Create group"
         />
       </div>
+
+      {isAdmin && (
+        <div className="mt-10">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="size-4 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">All connected devices</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Admin view — live feeds for every device currently connected to the
+            gateway.
+          </p>
+          {connectedDevices.length === 0 ? (
+            <p className="mt-6 text-sm text-muted-foreground">
+              No devices connected right now.
+            </p>
+          ) : (
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {connectedDevices.map((id) => (
+                <AdminFeedCard key={id} deviceId={id} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {userGroups.length === 0 ? (
         <div className="mt-16 flex flex-col items-center gap-4 text-center">
