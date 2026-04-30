@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenCam — SecurityHome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181b22;
+    --surface3: #1e2129;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0;
+    --text2: #8b90a0;
+    --text3: #555a6a;
+    --accent: #00e5a0;
+    --accent-dim: rgba(0,229,160,0.12);
+    --accent-border: rgba(0,229,160,0.3);
+    --red: #ff4d4d;
+    --red-dim: rgba(255,77,77,0.12);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.12);
+    --radius: 10px;
+    --radius-lg: 16px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Syne', sans-serif;
+    --transition: 0.18s ease;
+  }
+
+  html, body { height: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* ── VIEWS ── */
+  .view { display: none; height: 100vh; }
+  .view.active { display: flex; }
+
+  /* ═══════════════════════════════════════════
+     LOGIN
+  ═══════════════════════════════════════════ */
+  #view-login {
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #view-login::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
+    top: -100px; left: 50%; transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .login-box {
+    width: 380px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.4s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .login-logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-logo-icon svg { color: #0a0c10; }
+  .login-logo span {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .login-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .login-sub { font-size: 13px; color: var(--text2); margin-bottom: 28px; }
+
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 7px;
+    font-family: var(--mono);
+  }
+  .field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color var(--transition);
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--text3); }
+
+  .field-error {
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 5px;
+    font-family: var(--mono);
+    display: none;
+  }
+  .field.has-error input { border-color: var(--red); }
+  .field.has-error .field-error { display: block; }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px 20px;
+    border-radius: var(--radius);
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition);
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0c10;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .btn-primary:hover { background: #00ffb3; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+    font-size: 13px;
+  }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+
+  .btn-danger {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(255,77,77,0.2);
+    width: 100%;
+  }
+  .btn-danger:hover { background: rgba(255,77,77,0.2); }
+
+  .login-switch {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .login-switch a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .login-switch a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     DASHBOARD
+  ═══════════════════════════════════════════ */
+  #view-dashboard {
+    flex-direction: row;
+    overflow: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .sidebar-logo-icon {
+    width: 30px; height: 30px;
+    background: var(--accent);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .sidebar-logo-icon svg { width: 16px; height: 16px; color: #0a0c10; }
+  .sidebar-logo-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 16px 12px;
+    overflow-y: auto;
+  }
+
+  .sidebar-section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 8px;
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  .sidebar-section-title:first-child { margin-top: 0; }
+
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .sidebar-item svg { flex-shrink: 0; opacity: 0.7; }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+  }
+  .sidebar-item.active svg { opacity: 1; }
+
+  .sidebar-badge {
+    margin-left: auto;
+    background: var(--surface3);
+    color: var(--text3);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 20px;
+    text-align: center;
+  }
+  .sidebar-item.active .sidebar-badge {
+    background: rgba(0,229,160,0.15);
+    color: var(--accent);
+  }
+
+  .sidebar-footer {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .profile-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition);
+    width: 100%;
+    border: 1px solid transparent;
+    background: none;
+    text-align: left;
+  }
+  .profile-btn:hover { background: var(--surface2); border-color: var(--border2); }
+
+  .profile-avatar {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #00e5a0, #0088ff);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: #0a0c10;
+    flex-shrink: 0;
+  }
+  .profile-info { flex: 1; min-width: 0; }
+  .profile-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .profile-role { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  .profile-chevron { color: var(--text3); }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .topbar {
+    height: 60px;
+    min-height: 60px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    gap: 16px;
+  }
+
+  .topbar-title { font-size: 16px; font-weight: 600; }
+  .topbar-sub { font-size: 13px; color: var(--text3); font-family: var(--mono); }
+  .topbar-sep { flex: 1; }
+
+  .status-dot {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .btn-add {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 14px;
+    background: var(--accent);
+    color: #0a0c10;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .btn-add:hover { background: #00ffb3; transform: translateY(-1px); }
+  .btn-add svg { width: 14px; height: 14px; }
+
+  /* Camera grid */
+  .camera-grid-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+  }
+
+  .camera-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .camera-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all var(--transition);
+    cursor: pointer;
+    position: relative;
+  }
+  .camera-card:hover {
+    border-color: rgba(0,229,160,0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .camera-feed {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: var(--surface3);
+    overflow: hidden;
+  }
+
+  .camera-feed video, .camera-feed img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cam-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px;
+    background: var(--surface3);
+  }
+  .cam-placeholder-icon {
+    width: 48px; height: 48px;
+    background: var(--surface2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border2);
+  }
+  .cam-placeholder-icon svg { color: var(--text3); }
+  .cam-placeholder span {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .cam-live-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(10,12,16,0.75);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .cam-live-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.5s infinite;
+  }
+
+  .cam-offline-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: rgba(10,12,16,0.75);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,77,77,0.2);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--red);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .cam-motion-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(245,158,11,0.2);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--amber);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .camera-info {
+    display: flex; align-items: center;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .cam-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cam-location {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cam-settings-btn {
+    width: 30px; height: 30px;
+    border-radius: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all var(--transition);
+    color: var(--text3);
+  }
+  .cam-settings-btn:hover { background: var(--surface3); border-color: var(--border2); color: var(--text); }
+
+  .cam-info-left { flex: 1; min-width: 0; }
+
+  /* Empty state */
+  .empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px;
+    padding: 80px 20px;
+    text-align: center;
+  }
+  .empty-icon {
+    width: 72px; height: 72px;
+    background: var(--surface2);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border2);
+  }
+  .empty-icon svg { color: var(--text3); width: 32px; height: 32px; }
+  .empty-title { font-size: 16px; font-weight: 600; }
+  .empty-sub { font-size: 13px; color: var(--text2); max-width: 320px; line-height: 1.6; }
+
+  /* ═══════════════════════════════════════════
+     MODALS
+  ═══════════════════════════════════════════ */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(5,7,12,0.85);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.15s ease;
+  }
+  .overlay.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    width: 420px;
+    max-width: calc(100vw - 32px);
+    animation: slideUp 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .modal-title { font-size: 16px; font-weight: 600; flex: 1; }
+  .modal-close {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text3);
+    transition: all var(--transition);
+    flex-shrink: 0;
+  }
+  .modal-close:hover { background: var(--surface3); color: var(--text); }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .modal-footer .btn { width: auto; margin: 0; }
+
+  /* Camera expand modal */
+  .cam-modal {
+    width: 90vw;
+    max-width: 1000px;
+  }
+  .cam-modal-feed {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: #000;
+    overflow: hidden;
+  }
+  .cam-modal-feed img, .cam-modal-feed video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .cam-modal-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+  }
+  .cam-modal-placeholder svg { color: #2a2e38; width: 56px; height: 56px; }
+  .cam-modal-placeholder span { font-family: var(--mono); font-size: 12px; color: #3a3e48; }
+  .cam-modal-bar {
+    display: flex; align-items: center;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    gap: 12px;
+  }
+  .cam-modal-name { font-size: 16px; font-weight: 600; flex: 1; }
+  .cam-modal-meta { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+  /* Settings modal sections */
+  .settings-section { margin-bottom: 20px; }
+  .settings-section:last-child { margin-bottom: 0; }
+  .settings-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-info { flex: 1; }
+  .toggle-name { font-size: 13px; font-weight: 500; }
+  .toggle-desc { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+
+  .toggle {
+    width: 36px; height: 20px;
+    background: var(--surface3);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    flex-shrink: 0;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .toggle.on {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--text2);
+    top: 2px; left: 2px;
+    transition: transform var(--transition), background var(--transition);
+  }
+  .toggle.on::after {
+    transform: translateX(16px);
+    background: #0a0c10;
+  }
+
+  /* Danger zone */
+  .danger-zone {
+    background: var(--red-dim);
+    border: 1px solid rgba(255,77,77,0.15);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-top: 4px;
+  }
+  .danger-zone-title { font-size: 12px; font-weight: 600; color: var(--red); margin-bottom: 6px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; }
+  .danger-zone-desc { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+
+  /* Profile panel (slide from left) */
+  .profile-panel {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 320px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
+    box-shadow: 4px 0 32px rgba(0,0,0,0.5);
+  }
+  .profile-panel.open { transform: translateX(0); }
+
+  .profile-panel-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .profile-panel-avatar {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #00e5a0, #0088ff);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: #0a0c10;
+    flex-shrink: 0;
+  }
+  .profile-panel-name { font-size: 15px; font-weight: 600; }
+  .profile-panel-email { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+
+  .profile-panel-body { padding: 16px; }
+  .profile-menu-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all var(--transition);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .profile-menu-item:hover { background: var(--surface2); color: var(--text); }
+  .profile-menu-item.red { color: var(--red); }
+  .profile-menu-item.red:hover { background: var(--red-dim); }
+  .profile-menu-sep { height: 1px; background: var(--border); margin: 8px 0; }
+
+  /* Add camera wizard */
+  .wizard-step { display: none; }
+  .wizard-step.active { display: block; }
+
+  .wizard-ip {
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  .wizard-steps-indicator {
+    display: flex; gap: 6px;
+    margin-bottom: 20px;
+  }
+  .ws-dot {
+    height: 3px;
+    border-radius: 2px;
+    flex: 1;
+    background: var(--surface3);
+    transition: background var(--transition);
+  }
+  .ws-dot.active { background: var(--accent); }
+
+  .scan-animation {
+    height: 80px;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    margin: 16px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .scan-line {
+    position: absolute;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scanAnim 1.5s ease-in-out infinite;
+  }
+  @keyframes scanAnim {
+    0% { top: 0; }
+    100% { top: 100%; }
+  }
+  .scan-text { font-family: var(--mono); font-size: 12px; color: var(--text3); z-index: 1; }
+
+  .found-device {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    margin: 12px 0;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .found-device:hover { background: rgba(0,229,160,0.18); }
+  .found-device-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .found-device-name { font-size: 13px; font-weight: 600; color: var(--accent); }
+  .found-device-ip { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* Notification toast */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13px;
+    z-index: 9999;
+    display: flex; align-items: center; gap: 10px;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .toast.success { border-color: var(--accent-border); }
+  .toast.success .toast-icon { color: var(--accent); }
+  .toast.error { border-color: rgba(255,77,77,0.3); }
+  .toast.error .toast-icon { color: var(--red); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+
+  /* Responsive tweaks */
+  @media (max-width: 700px) {
+    .sidebar { display: none; }
+    .camera-grid { grid-template-columns: 1fr; }
+    .topbar { padding: 0 16px; }
+    .camera-grid-wrap { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN VIEW ═══ -->
+<div class="view active" id="view-login">
+  <div class="login-box" id="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <span>OpenCam</span>
+    </div>
+
+    <h1 class="login-title" id="auth-title">Connexion</h1>
+    <p class="login-sub" id="auth-sub">Accédez à votre tableau de bord de sécurité.</p>
+
+    <div class="field" id="field-email">
+      <label>Email</label>
+      <input type="email" id="input-email" placeholder="vous@exemple.com" autocomplete="email">
+      <span class="field-error" id="err-email">Adresse email invalide.</span>
+    </div>
+
+    <div class="field" id="field-password">
+      <label>Mot de passe</label>
+      <input type="password" id="input-password" placeholder="••••••••" autocomplete="current-password">
+      <span class="field-error" id="err-password">Mot de passe incorrect.</span>
+    </div>
+
+    <div class="field" id="field-password-confirm" style="display:none">
+      <label>Confirmer le mot de passe</label>
+      <input type="password" id="input-confirm" placeholder="••••••••">
+      <span class="field-error" id="err-confirm">Les mots de passe ne correspondent pas.</span>
+    </div>
+
+    <button class="btn btn-primary" id="btn-auth" onclick="handleAuth()">Se connecter</button>
+
+    <p class="login-switch" id="auth-switch">
+      Pas encore de compte ? <a href="#" onclick="toggleAuthMode(event)">Créer un compte</a>
+    </p>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD VIEW ═══ -->
+<div class="view" id="view-dashboard">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-name">OpenCam</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-title">Navigation</div>
+      <button class="sidebar-item active" onclick="setRoom('all')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Toutes les caméras
+        <span class="sidebar-badge" id="badge-all">4</span>
+      </button>
+
+      <div class="sidebar-section-title">Pièces</div>
+      <button class="sidebar-item" onclick="setRoom('salon')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Salon
+        <span class="sidebar-badge">2</span>
+      </button>
+      <button class="sidebar-item" onclick="setRoom('garage')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Garage
+        <span class="sidebar-badge">1</span>
+      </button>
+      <button class="sidebar-item" onclick="setRoom('entree')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Entrée
+        <span class="sidebar-badge">1</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="profile-btn" onclick="toggleProfile()">
+        <div class="profile-avatar" id="sidebar-avatar">JD</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">Jean Dupont</div>
+          <div class="profile-role">admin</div>
+        </div>
+        <svg class="profile-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Toutes les caméras</div>
+        <div class="topbar-sub" id="topbar-sub">4 caméras · Maison principale</div>
+      </div>
+      <div class="topbar-sep"></div>
+      <div class="status-dot">
+        <div class="dot"></div>
+        Système actif
+      </div>
+      <button class="btn-add" onclick="openAddCamera()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Synchroniser
+      </button>
+    </div>
+
+    <div class="camera-grid-wrap">
+      <div class="camera-grid" id="camera-grid">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══ OVERLAY : Camera expanded ═══ -->
+<div class="overlay" id="overlay-cam" onclick="closeCamModal(event)">
+  <div class="modal cam-modal" id="modal-cam">
+    <div class="cam-modal-feed">
+      <div class="cam-modal-placeholder" id="cam-modal-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        <span>Flux non disponible</span>
+      </div>
+      <div class="cam-live-badge" id="cam-modal-live" style="display:none">
+        <div class="cam-live-dot"></div> LIVE
+      </div>
+    </div>
+    <div class="cam-modal-bar">
+      <div>
+        <div class="cam-modal-name" id="cam-modal-name">—</div>
+        <div class="cam-modal-meta" id="cam-modal-meta">—</div>
+      </div>
+      <button class="btn btn-ghost" style="gap:7px" onclick="openCamSettings(currentCamId)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Paramètres
+      </button>
+      <button class="modal-close" onclick="closeCamModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY : Camera settings ═══ -->
+<div class="overlay" id="overlay-settings" onclick="closeSettings(event)">
+  <div class="modal" id="modal-settings">
+    <div class="modal-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="modal-title" id="settings-title">Paramètres de la caméra</span>
+      <button class="modal-close" onclick="closeSettings()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-section">
+        <div class="settings-label">Nom de la caméra</div>
+        <div class="field" style="margin:0">
+          <input type="text" id="settings-name-input" placeholder="Ex: Entrée principale">
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">Contrôles</div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Flux actif</div>
+            <div class="toggle-desc">Activer ou désactiver le stream</div>
+          </div>
+          <div class="toggle on" id="toggle-active" onclick="toggleSetting('active')"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Détection de mouvement</div>
+            <div class="toggle-desc">Alerte lors d'un mouvement détecté</div>
+          </div>
+          <div class="toggle" id="toggle-motion" onclick="toggleSetting('motion')"></div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">Zone de danger</div>
+        <div class="danger-zone">
+          <div class="danger-zone-title">Supprimer la caméra</div>
+          <div class="danger-zone-desc">Cette action est irréversible. La caméra sera retirée de votre compte.</div>
+          <button class="btn btn-danger" onclick="deleteCamera()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Supprimer cette caméra
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeSettings()">Annuler</button>
+      <button class="btn btn-primary" style="padding:10px 20px" onclick="saveSettings()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY : Add camera wizard ═══ -->
+<div class="overlay" id="overlay-add" onclick="closeAddCamera(event)">
+  <div class="modal" id="modal-add">
+    <div class="modal-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+      <span class="modal-title">Synchroniser une caméra</span>
+      <button class="modal-close" onclick="closeAddCamera()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="wizard-steps-indicator">
+        <div class="ws-dot active" id="ws1"></div>
+        <div class="ws-dot" id="ws2"></div>
+        <div class="ws-dot" id="ws3"></div>
+      </div>
+
+      <!-- Step 1 : Scan -->
+      <div class="wizard-step active" id="wstep-1">
+        <div style="font-size:14px;font-weight:600;margin-bottom:6px">Recherche des appareils</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;font-family:var(--mono)">Assurez-vous que votre ESP32-CAM est sur le même réseau Wi-Fi.</div>
+        <div class="scan-animation" id="scan-anim">
+          <div class="scan-line"></div>
+          <span class="scan-text" id="scan-text">Analyse du réseau local…</span>
+        </div>
+        <div id="found-devices"></div>
+      </div>
+
+      <!-- Step 2 : Name -->
+      <div class="wizard-step" id="wstep-2">
+        <div style="font-size:14px;font-weight:600;margin-bottom:6px">Nommer la caméra</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:16px;font-family:var(--mono)">Donnez un nom clair à votre caméra pour la retrouver facilement.</div>
+        <div class="field">
+          <label>Nom de la caméra</label>
+          <input type="text" id="new-cam-name" placeholder="Ex: Jardin arrière">
+        </div>
+        <div class="field">
+          <label>Pièce</label>
+          <input type="text" id="new-cam-room" placeholder="Ex: Salon, Garage…">
+        </div>
+      </div>
+
+      <!-- Step 3 : Done -->
+      <div class="wizard-step" id="wstep-3">
+        <div style="text-align:center;padding:20px 0">
+          <div style="width:56px;height:56px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:8px">Caméra synchronisée !</div>
+          <div style="font-size:13px;color:var(--text2);font-family:var(--mono)" id="confirm-cam-name"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="btn-add-back" style="display:none" onclick="wizardBack()">Retour</button>
+      <button class="btn btn-primary" id="btn-add-next" style="padding:10px 24px" onclick="wizardNext()">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY : Profile ═══ -->
+<div class="overlay" id="overlay-profile" onclick="closeProfile(event)" style="background:transparent;backdrop-filter:none;z-index:150">
+</div>
+
+<!-- Profile panel -->
+<div class="profile-panel" id="profile-panel">
+  <div class="profile-panel-header">
+    <div class="profile-panel-avatar" id="panel-avatar">JD</div>
+    <div>
+      <div class="profile-panel-name" id="panel-name">Jean Dupont</div>
+      <div class="profile-panel-email" id="panel-email">jean@exemple.com</div>
+    </div>
+  </div>
+  <div class="profile-panel-body">
+    <button class="profile-menu-item" onclick="openChangePassword()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Changer le mot de passe
+    </button>
+    <button class="profile-menu-item" onclick="showToast('Accès partagés — fonctionnalité à venir.','info')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Gérer les accès
+    </button>
+    <button class="profile-menu-item" onclick="showToast('Préférences — fonctionnalité à venir.','info')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Préférences
+    </button>
+    <div class="profile-menu-sep"></div>
+    <button class="profile-menu-item red" onclick="logout()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Se déconnecter
+    </button>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY : Change password ═══ -->
+<div class="overlay" id="overlay-pwd" onclick="closeChangePwd(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span class="modal-title">Changer le mot de passe</span>
+      <button class="modal-close" onclick="closeChangePwd()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Mot de passe actuel</label>
+        <input type="password" id="pwd-current" placeholder="••••••••">
+      </div>
+      <div class="field">
+        <label>Nouveau mot de passe</label>
+        <input type="password" id="pwd-new" placeholder="••••••••">
+      </div>
+      <div class="field">
+        <label>Confirmer le nouveau mot de passe</label>
+        <input type="password" id="pwd-confirm" placeholder="••••••••">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeChangePwd()">Annuler</button>
+      <button class="btn btn-primary" style="padding:10px 20px" onclick="savePassword()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="toast-icon"></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let currentUser = null;
+let cameras = [];
+let currentCamId = null;
+let settingsCamId = null;
+let currentRoom = 'all';
+let isSignup = false;
+let wizardStep = 1;
+let selectedDevice = null;
+
+// Demo cameras
+const demoCameras = [
+  { id: 1, name: 'Entrée principale', room: 'entree', isActive: true, motionDetection: true, ip: '192.168.1.41' },
+  { id: 2, name: 'Salon – vue générale', room: 'salon', isActive: true, motionDetection: false, ip: '192.168.1.42' },
+  { id: 3, name: 'Salon – fenêtre', room: 'salon', isActive: false, motionDetection: false, ip: '192.168.1.43' },
+  { id: 4, name: 'Garage', room: 'garage', isActive: true, motionDetection: true, ip: '192.168.1.44' },
+];
+
+const roomLabels = { all: 'Toutes les caméras', salon: 'Salon', garage: 'Garage', entree: 'Entrée' };
+
+// ══════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════
+function toggleAuthMode(e) {
+  e.preventDefault();
+  isSignup = !isSignup;
+  document.getElementById('auth-title').textContent = isSignup ? 'Créer un compte' : 'Connexion';
+  document.getElementById('auth-sub').textContent = isSignup ? 'Rejoignez OpenCam gratuitement.' : 'Accédez à votre tableau de bord de sécurité.';
+  document.getElementById('btn-auth').textContent = isSignup ? 'Créer mon compte' : 'Se connecter';
+  document.getElementById('field-password-confirm').style.display = isSignup ? 'block' : 'none';
+  document.getElementById('auth-switch').innerHTML = isSignup
+    ? 'Déjà un compte ? <a href="#" onclick="toggleAuthMode(event)">Se connecter</a>'
+    : 'Pas encore de compte ? <a href="#" onclick="toggleAuthMode(event)">Créer un compte</a>';
+  clearErrors();
+}
+
+function clearErrors() {
+  ['email','password','confirm'].forEach(f => {
+    const el = document.getElementById('field-' + f);
+    if (el) el.classList.remove('has-error');
+  });
+}
+
+function setError(field, msg) {
+  const el = document.getElementById('field-' + field);
+  const errEl = document.getElementById('err-' + field);
+  if (el) el.classList.add('has-error');
+  if (errEl && msg) errEl.textContent = msg;
+}
+
+function handleAuth() {
+  clearErrors();
+  const email = document.getElementById('input-email').value.trim();
+  const password = document.getElementById('input-password').value;
+
+  let ok = true;
+  if (!email || !email.includes('@')) { setError('email', 'Adresse email invalide.'); ok = false; }
+  if (!password || password.length < 6) { setError('password', 'Mot de passe trop court (6 caractères min).'); ok = false; }
+
+  if (isSignup) {
+    const confirm = document.getElementById('input-confirm').value;
+    if (confirm !== password) { setError('confirm', 'Les mots de passe ne correspondent pas.'); ok = false; }
+  }
+
+  if (!ok) return;
+
+  // Simulate login
+  const name = email.split('@')[0].split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  currentUser = { email, name };
+  cameras = [...demoCameras];
+  loadDashboard();
+}
+
+function loadDashboard() {
+  // Set profile info
+  const initials = currentUser.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sidebar-avatar').textContent = initials;
+  document.getElementById('sidebar-name').textContent = currentUser.name;
+  document.getElementById('panel-avatar').textContent = initials;
+  document.getElementById('panel-name').textContent = currentUser.name;
+  document.getElementById('panel-email').textContent = currentUser.email;
+
+  document.getElementById('view-login').classList.remove('active');
+  document.getElementById('view-dashboard').classList.add('active');
+  renderCameras();
+}
+
+function logout() {
+  currentUser = null;
+  cameras = [];
+  closeProfile();
+  document.getElementById('view-dashboard').classList.remove('active');
+  document.getElementById('view-login').classList.add('active');
+  document.getElementById('input-email').value = '';
+  document.getElementById('input-password').value = '';
+  clearErrors();
+}
+
+// ══════════════════════════════════════════
+//  ROOM FILTER
+// ══════════════════════════════════════════
+function setRoom(room) {
+  currentRoom = room;
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('topbar-title').textContent = roomLabels[room] || room;
+  const filtered = room === 'all' ? cameras : cameras.filter(c => c.room === room);
+  document.getElementById('topbar-sub').textContent = `${filtered.length} caméra${filtered.length > 1 ? 's' : ''} · Maison principale`;
+  renderCameras();
+}
+
+// ══════════════════════════════════════════
+//  RENDER CAMERAS
+// ══════════════════════════════════════════
+function renderCameras() {
+  const grid = document.getElementById('camera-grid');
+  const filtered = currentRoom === 'all' ? cameras : cameras.filter(c => c.room === currentRoom);
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+      </div>
+      <div class="empty-title">Aucune caméra</div>
+      <div class="empty-sub">Appuyez sur le bouton <strong style="color:var(--accent)">+ Synchroniser</strong> pour ajouter votre premier appareil ESP32-CAM.</div>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(cam => `
+    <div class="camera-card" id="cam-card-${cam.id}">
+      <div class="camera-feed" onclick="openCam(${cam.id})">
+        <div class="cam-placeholder">
+          <div class="cam-placeholder-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          </div>
+          <span>${cam.isActive ? 'Connexion au flux…' : 'Flux inactif'}</span>
+        </div>
+        ${cam.isActive ? `<div class="cam-live-badge"><div class="cam-live-dot"></div> LIVE</div>` : `<div class="cam-offline-badge">OFFLINE</div>`}
+        ${cam.motionDetection ? `<div class="cam-motion-badge">MOTION</div>` : ''}
+      </div>
+      <div class="camera-info">
+        <div class="cam-info-left">
+          <div class="cam-name">${cam.name}</div>
+          <div class="cam-location">${cam.ip}</div>
+        </div>
+        <button class="cam-settings-btn" onclick="openCamSettings(${cam.id})" title="Paramètres">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  // Update badge
+  document.getElementById('badge-all').textContent = cameras.length;
+}
+
+// ══════════════════════════════════════════
+//  CAMERA EXPAND
+// ══════════════════════════════════════════
+function openCam(id) {
+  const cam = cameras.find(c => c.id === id);
+  if (!cam) return;
+  currentCamId = id;
+  document.getElementById('cam-modal-name').textContent = cam.name;
+  document.getElementById('cam-modal-meta').textContent = `${cam.ip} · ${cam.isActive ? 'En ligne' : 'Hors ligne'}`;
+  document.getElementById('cam-modal-live').style.display = cam.isActive ? 'flex' : 'none';
+  document.getElementById('overlay-cam').classList.add('open');
+}
+
+function closeCamModal(e) {
+  if (e && e.target !== document.getElementById('overlay-cam')) return;
+  document.getElementById('overlay-cam').classList.remove('open');
+  currentCamId = null;
+}
+
+// ══════════════════════════════════════════
+//  CAMERA SETTINGS
+// ══════════════════════════════════════════
+function openCamSettings(id) {
+  // Close cam modal if open
+  document.getElementById('overlay-cam').classList.remove('open');
+
+  const cam = cameras.find(c => c.id === id);
+  if (!cam) return;
+  settingsCamId = id;
+  document.getElementById('settings-title').textContent = 'Paramètres — ' + cam.name;
+  document.getElementById('settings-name-input').value = cam.name;
+
+  const toggleActive = document.getElementById('toggle-active');
+  const toggleMotion = document.getElementById('toggle-motion');
+  toggleActive.className = 'toggle' + (cam.isActive ? ' on' : '');
+  toggleMotion.className = 'toggle' + (cam.motionDetection ? ' on' : '');
+
+  document.getElementById('overlay-settings').classList.add('open');
+}
+
+function closeSettings(e) {
+  if (e && e.target !== document.getElementById('overlay-settings')) return;
+  document.getElementById('overlay-settings').classList.remove('open');
+}
+
+function toggleSetting(type) {
+  const id = type === 'active' ? 'toggle-active' : 'toggle-motion';
+  const el = document.getElementById(id);
+  el.classList.toggle('on');
+}
+
+function saveSettings() {
+  const cam = cameras.find(c => c.id === settingsCamId);
+  if (!cam) return;
+  cam.name = document.getElementById('settings-name-input').value.trim() || cam.name;
+  cam.isActive = document.getElementById('toggle-active').classList.contains('on');
+  cam.motionDetection = document.getElementById('toggle-motion').classList.contains('on');
+  closeSettings();
+  renderCameras();
+  showToast('Paramètres enregistrés avec succès.', 'success');
+}
+
+function deleteCamera() {
+  cameras = cameras.filter(c => c.id !== settingsCamId);
+  closeSettings();
+  renderCameras();
+  showToast('Caméra supprimée.', 'error');
+}
+
+// ══════════════════════════════════════════
+//  ADD CAMERA WIZARD
+// ══════════════════════════════════════════
+function openAddCamera() {
+  wizardStep = 1;
+  selectedDevice = null;
+  updateWizard();
+  document.getElementById('overlay-add').classList.add('open');
+  // Simulate scan
+  setTimeout(() => {
+    document.getElementById('scan-text').textContent = 'Appareil détecté !';
+    document.getElementById('scan-anim').querySelector('.scan-line').style.display = 'none';
+    document.getElementById('found-devices').innerHTML = `
+      <div class="found-device" onclick="selectDevice(this)">
+        <div class="found-device-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a0c10" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        </div>
+        <div>
+          <div class="found-device-name">ESP32-CAM #001</div>
+          <div class="found-device-ip">192.168.1.50 · Wi-Fi signal fort</div>
+        </div>
+      </div>
+    `;
+    selectedDevice = { ip: '192.168.1.50', model: 'ESP32-CAM #001' };
+  }, 2200);
+}
+
+function selectDevice(el) {
+  el.style.border = '1px solid var(--accent)';
+  el.style.background = 'rgba(0,229,160,0.2)';
+}
+
+function closeAddCamera(e) {
+  if (e && e.target !== document.getElementById('overlay-add')) return;
+  document.getElementById('overlay-add').classList.remove('open');
+  resetWizard();
+}
+
+function resetWizard() {
+  wizardStep = 1;
+  selectedDevice = null;
+  document.getElementById('new-cam-name').value = '';
+  document.getElementById('new-cam-room').value = '';
+  document.getElementById('found-devices').innerHTML = '';
+  document.getElementById('scan-text').textContent = 'Analyse du réseau local…';
+  const line = document.getElementById('scan-anim').querySelector('.scan-line');
+  if (line) line.style.display = '';
+}
+
+function wizardNext() {
+  if (wizardStep === 1) {
+    if (!selectedDevice) { showToast('Aucun appareil sélectionné.', 'error'); return; }
+    wizardStep = 2;
+  } else if (wizardStep === 2) {
+    const name = document.getElementById('new-cam-name').value.trim();
+    if (!name) { showToast('Donnez un nom à la caméra.', 'error'); return; }
+    const room = document.getElementById('new-cam-room').value.trim() || 'Divers';
+    const newCam = {
+      id: Date.now(),
+      name,
+      room: room.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_'),
+      isActive: true,
+      motionDetection: false,
+      ip: selectedDevice.ip
+    };
+    cameras.push(newCam);
+    document.getElementById('confirm-cam-name').textContent = `"${name}" ajoutée avec succès.`;
+    wizardStep = 3;
+    renderCameras();
+  } else if (wizardStep === 3) {
+    closeAddCamera();
+    resetWizard();
+    return;
+  }
+  updateWizard();
+}
+
+function wizardBack() {
+  if (wizardStep > 1) { wizardStep--; updateWizard(); }
+}
+
+function updateWizard() {
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('wstep-' + i).className = 'wizard-step' + (i === wizardStep ? ' active' : '');
+    document.getElementById('ws' + i).className = 'ws-dot' + (i <= wizardStep ? ' active' : '');
+  }
+  document.getElementById('btn-add-back').style.display = wizardStep > 1 ? 'flex' : 'none';
+  document.getElementById('btn-add-next').textContent = wizardStep === 3 ? 'Terminer' : 'Suivant';
+}
+
+// ══════════════════════════════════════════
+//  PROFILE
+// ══════════════════════════════════════════
+function toggleProfile() {
+  const panel = document.getElementById('profile-panel');
+  const overlay = document.getElementById('overlay-profile');
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) {
+    panel.classList.remove('open');
+    overlay.classList.remove('open');
+  } else {
+    panel.classList.add('open');
+    overlay.classList.add('open');
+  }
+}
+
+function closeProfile(e) {
+  document.getElementById('profile-panel').classList.remove('open');
+  document.getElementById('overlay-profile').classList.remove('open');
+}
+
+function openChangePassword() {
+  closeProfile();
+  document.getElementById('overlay-pwd').classList.add('open');
+}
+
+function closeChangePwd(e) {
+  if (e && e.target !== document.getElementById('overlay-pwd')) return;
+  document.getElementById('overlay-pwd').classList.remove('open');
+}
+
+function savePassword() {
+  const cur = document.getElementById('pwd-current').value;
+  const n = document.getElementById('pwd-new').value;
+  const c = document.getElementById('pwd-confirm').value;
+  if (!cur || !n || !c) { showToast('Tous les champs sont requis.', 'error'); return; }
+  if (n.length < 8) { showToast('Le mot de passe doit faire 8 caractères minimum.', 'error'); return; }
+  if (n !== c) { showToast('Les mots de passe ne correspondent pas.', 'error'); return; }
+  closeChangePwd();
+  showToast('Mot de passe mis à jour.', 'success');
+  document.getElementById('pwd-current').value = '';
+  document.getElementById('pwd-new').value = '';
+  document.getElementById('pwd-confirm').value = '';
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+let toastTimer = null;
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  const icon = document.getElementById('toast-icon');
+  const msgEl = document.getElementById('toast-msg');
+  toast.className = 'toast ' + type;
+  msgEl.textContent = msg;
+  const paths = {
+    success: '<polyline points="20 6 9 17 4 12"/>',
+    error: '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+    info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
+  };
+  icon.innerHTML = paths[type] || paths.info;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════
+//  KEYBOARD
+// ══════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('overlay-cam').classList.remove('open');
+    document.getElementById('overlay-settings').classList.remove('open');
+    document.getElementById('overlay-add').classList.remove('open');
+    document.getElementById('overlay-pwd').classList.remove('open');
+    closeProfile();
+  }
+  if (e.key === 'Enter' && document.getElementById('view-login').classList.contains('active')) {
+    handleAuth();
+  }
+});
+</script>
+</body>
+</html>
