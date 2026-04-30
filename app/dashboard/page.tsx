@@ -7,20 +7,7 @@ import { DashboardBreadcrumb } from "@/components/dashboard-breadcrumb"
 import { CreateDialog } from "@/components/create-dialog"
 import { createGroup } from "@/app/dashboard/actions"
 import { Card, CardContent } from "@/components/ui/card"
-import { AdminFeedCard } from "@/components/admin-feed-card"
-
-async function getConnectedDevices(): Promise<string[]> {
-  try {
-    const res = await fetch("http://localhost:7890/devices", {
-      cache: "no-store",
-    })
-    if (!res.ok) return []
-    const data = await res.json()
-    return data.devices ?? []
-  } catch {
-    return []
-  }
-}
+import { AdminDebugButton } from "@/components/admin-debug-button"
 
 export default async function DashboardPage() {
   const { user } = await getCurrentSession()
@@ -28,10 +15,7 @@ export default async function DashboardPage() {
 
   const isAdmin = user.email === process.env.ADMIN_EMAIL
 
-  const [userGroups, connectedDevices] = await Promise.all([
-    getGroupsForUser(user.id),
-    isAdmin ? getConnectedDevices() : Promise.resolve([]),
-  ])
+  const userGroups = await getGroupsForUser(user.id)
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -63,17 +47,7 @@ export default async function DashboardPage() {
             Admin view — live feeds for every device currently connected to the
             gateway.
           </p>
-          {connectedDevices.length === 0 ? (
-            <p className="mt-6 text-sm text-muted-foreground">
-              No devices connected right now.
-            </p>
-          ) : (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {connectedDevices.map((id) => (
-                <AdminFeedCard key={id} deviceId={id} />
-              ))}
-            </div>
-          )}
+          <AdminDebugButton />
         </div>
       )}
 

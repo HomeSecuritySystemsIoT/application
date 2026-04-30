@@ -75,6 +75,28 @@ export async function createRoom(
   return { success: true }
 }
 
+// ── Admin: connected devices ──────────────────────────────────────────────────
+
+export async function fetchConnectedDevices(): Promise<{
+  devices?: string[]
+  error?: string
+}> {
+  try {
+    const res = await fetch("http://localhost:7890/devices", {
+      cache: "no-store",
+    })
+    const text = await res.text()
+    console.log("[admin] GET /devices →", res.status, text)
+    if (!res.ok) return { error: `HTTP ${res.status}` }
+    const data = JSON.parse(text)
+    return { devices: data.devices ?? [] }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.log("[admin] GET /devices failed:", msg)
+    return { error: msg }
+  }
+}
+
 // ── Camera toggles ────────────────────────────────────────────────────────────
 
 export async function toggleCameraActive(
