@@ -2,6 +2,7 @@
 
 OpenCam is an open-source, self-hosted home security camera platform built for ESP32-CAM devices. It lets you organise cameras across multiple locations, monitor live feeds, and toggle motion detection — all from a clean web interface.
 
+
 ## What it does
 
 - **Group-based access control** — users belong to groups; only group members can see that group's data
