@@ -83,7 +83,8 @@ export async function fetchConnectedDevices(): Promise<{
   error?: string
 }> {
   try {
-    const res = await fetch("http://localhost:7890/devices", {
+    const backendUrl = process.env.BACKEND_INTERNAL_URL ?? "http://localhost:7890"
+    const res = await fetch(`${backendUrl}/devices`, {
       cache: "no-store",
     })
     const text = await res.text()
