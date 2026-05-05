@@ -9,7 +9,8 @@ import { createUser, getUserByEmail } from "@/drizzle/actions/user"
 
 const SESSION_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.SECURE_COOKIES === "true",
+  // secure: process.env.SECURE_COOKIES === "true",
+  secure: false, // TODO: CHANGE THIS WHEN HTTPS
   sameSite: "lax" as const,
   path: "/",
   maxAge: 60 * 60 * 24 * 30, // 30 days
