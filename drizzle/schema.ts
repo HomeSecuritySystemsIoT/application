@@ -73,6 +73,25 @@ export const cameras = pgTable("Camera", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 })
 
+export const claimTokens = pgTable("ClaimToken", {
+  id: serial("id").primaryKey(),
+  token: varchar("token", { length: 64 }).notNull().unique(),
+  groupId: integer("group_id")
+    .notNull()
+    .references(() => groups.id, { onDelete: "cascade" }),
+  roomId: integer("room_id")
+    .notNull()
+    .references(() => rooms.id, { onDelete: "cascade" }),
+  createdByUserId: integer("created_by_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  consumedAt: timestamp("consumed_at"),
+  consumedByDeviceId: varchar("consumed_by_device_id", { length: 64 }),
+  status: varchar("status", { length: 16 }).notNull().default("unused"),
+})
+export type ClaimTokenSelect = typeof claimTokens.$inferSelect
+
 // auth
 export const sessions = pgTable("Sessions", {
   userId: serial("user_id")

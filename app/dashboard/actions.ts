@@ -9,6 +9,7 @@ import {
   setCameraActive,
   setCameraMotionDetection,
 } from "@/drizzle/actions/cameras"
+import { createClaimToken } from "@/drizzle/actions/claimTokens"
 
 // ── Group ─────────────────────────────────────────────────────────────────────
 
@@ -115,4 +116,17 @@ export async function toggleCameraMotionDetection(
 ): Promise<void> {
   await setCameraMotionDetection(cameraId, motionDetection)
   revalidatePath(path)
+}
+
+// ── Camera claiming ───────────────────────────────────────────────────────────
+
+export async function createClaimTokenAction(
+  groupId: number,
+  roomId: number
+): Promise<{ token: string; expiresAt: string }> {
+  const { user } = await getCurrentSession()
+  if (!user) throw new Error("Not authenticated")
+  const token = await createClaimToken(groupId, roomId, user.id)
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString()
+  return { token, expiresAt }
 }

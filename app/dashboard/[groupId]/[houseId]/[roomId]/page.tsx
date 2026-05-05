@@ -8,6 +8,7 @@ import { getRoomById } from "@/drizzle/actions/rooms"
 import { getCamerasByRoomId } from "@/drizzle/actions/cameras"
 import { DashboardBreadcrumb } from "@/components/dashboard-breadcrumb"
 import { CameraCard } from "@/components/camera-card"
+import { AddCameraDialog } from "@/components/add-camera-dialog"
 
 export default async function RoomPage({
   params,
@@ -53,12 +54,15 @@ export default async function RoomPage({
         ]}
       />
 
-      <div className="mt-6">
-        <h1 className="text-2xl font-bold tracking-tight">{room.name}</h1>
-        <p className="text-sm text-muted-foreground">
-          {cameras.length} {cameras.length === 1 ? "camera" : "cameras"}{" "}
-          connected
-        </p>
+      <div className="mt-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{room.name}</h1>
+          <p className="text-sm text-muted-foreground">
+            {cameras.length} {cameras.length === 1 ? "camera" : "cameras"}{" "}
+            connected
+          </p>
+        </div>
+        <AddCameraDialog roomId={roomId} groupId={groupId} />
       </div>
 
       {cameras.length === 0 ? (
