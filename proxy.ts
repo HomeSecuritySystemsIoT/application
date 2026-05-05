@@ -4,8 +4,6 @@ import { db } from "@/drizzle/db"
 import { sessions } from "@/drizzle/schema"
 import { eq } from "drizzle-orm"
 
-export const runtime = "nodejs"
-
 const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000 // 30 days in ms
 
 const protectedRoutes = ["/dashboard"]
