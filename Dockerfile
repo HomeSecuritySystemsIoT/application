@@ -4,6 +4,11 @@ COPY package.json package-lock.json ./
 
 # ── builder: install all deps + build ────────────────────────────────────────
 FROM base AS builder
+# NEXT_PUBLIC_* vars are baked into the JS bundle at build time
+ARG NEXT_PUBLIC_FRONTEND_URL
+ARG NEXT_PUBLIC_BACKEND_WS_URL
+ENV NEXT_PUBLIC_FRONTEND_URL=$NEXT_PUBLIC_FRONTEND_URL
+ENV NEXT_PUBLIC_BACKEND_WS_URL=$NEXT_PUBLIC_BACKEND_WS_URL
 RUN npm ci
 COPY . .
 RUN npm run build
