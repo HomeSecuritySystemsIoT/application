@@ -85,7 +85,7 @@ export function AddCameraDialog({ roomId, groupId }: AddCameraDialogProps) {
           <DialogHeader>
             <DialogTitle>Add Camera</DialogTitle>
             <DialogDescription>
-              Scan the QR code with your ESP32 device after it connects to WiFi.
+              Scan the QR code with your phone, copy the text, and connect to the wifi network created by the device, after connecting to it's network, open a browser and go to 192.168.4.1 and complete the form.
             </DialogDescription>
           </DialogHeader>
 
