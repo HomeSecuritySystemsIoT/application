@@ -61,17 +61,23 @@ export const rooms = pgTable("Room", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 })
 
-export const cameras = pgTable("Camera", {
-  id: serial("id").primaryKey(),
-  roomId: integer("room_id")
-    .notNull()
-    .references(() => rooms.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 128 }).notNull().default("Camera"),
-  deviceId: varchar("device_id", { length: 64 }),
-  isActive: boolean("is_active").notNull().default(true),
-  motionDetection: boolean("motion_detection").notNull().default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-})
+export const cameras = pgTable(
+  "Camera",
+  {
+    id: serial("id").primaryKey(),
+    roomId: integer("room_id")
+      .notNull()
+      .references(() => rooms.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 128 }).notNull().default("Camera"),
+    deviceId: varchar("device_id", { length: 64 }),
+    isActive: boolean("is_active").notNull().default(true),
+    motionDetection: boolean("motion_detection").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    deviceIdUnique: uniqueIndex("camera_device_id_unique_idx").on(t.deviceId),
+  })
+)
 
 export const claimTokens = pgTable("ClaimToken", {
   id: serial("id").primaryKey(),

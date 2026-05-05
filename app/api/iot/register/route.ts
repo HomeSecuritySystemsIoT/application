@@ -1,6 +1,7 @@
 export const runtime = "nodejs"
 
 import { NextRequest, NextResponse } from "next/server"
+import { eq } from "drizzle-orm"
 import { validateAndConsumeClaimToken } from "@/drizzle/actions/claimTokens"
 import { db } from "@/drizzle/db"
 import { cameras } from "@/drizzle/schema"
@@ -67,6 +68,9 @@ export async function POST(req: NextRequest) {
   }
 
   const { roomId } = result
+
+  // Remove any existing entry for this MAC (device transferred to a new owner)
+  await db.delete(cameras).where(eq(cameras.deviceId, device_id))
 
   await db.insert(cameras).values({
     roomId,

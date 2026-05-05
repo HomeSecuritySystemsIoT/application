@@ -25,8 +25,8 @@ function useCameraFeed(deviceId: string | null, active: boolean) {
   React.useEffect(() => {
     if (!deviceId || !active) return
 
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
-    const ws = new WebSocket(`${protocol}//${window.location.hostname}:7890?device=${deviceId}`)
+    const backendWsUrl = process.env.NEXT_PUBLIC_BACKEND_WS_URL ?? `ws://${window.location.hostname}:7890`
+    const ws = new WebSocket(`${backendWsUrl}?device=${deviceId}`)
     ws.binaryType = "arraybuffer"
 
     ws.onmessage = (event) => {
