@@ -9,10 +9,8 @@ function useFeed(deviceId: string) {
   const prevUrl = React.useRef<string | null>(null)
 
   React.useEffect(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
-    const ws = new WebSocket(
-      `${protocol}//${window.location.hostname}:7890?device=${deviceId}`
-    )
+    const backendWsUrl = process.env.NEXT_PUBLIC_BACKEND_WS_URL ?? `wss://${window.location.hostname}/backend`
+    const ws = new WebSocket(`${backendWsUrl}?device=${deviceId}`)
     ws.binaryType = "arraybuffer"
 
     ws.onmessage = (event) => {
