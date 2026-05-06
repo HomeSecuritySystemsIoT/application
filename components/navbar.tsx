@@ -1,57 +1,41 @@
 "use client"
 
 import Link from "next/link"
-import { LogOut } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { Shield } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
-import { logout } from "@/app/auth/actions"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 export function Navbar() {
   const { user } = useAuth()
+  const pathname = usePathname()
+
+  if (pathname?.startsWith("/dashboard") || pathname?.startsWith("/auth")) return null
 
   return (
-    <div className="fixed top-10 right-10 z-50">
-      {user ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Avatar size="lg" className="cursor-pointer">
-              <AvatarFallback>
-                {user.email.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-fit">
-            <DropdownMenuLabel className="p-2 font-normal text-muted-foreground">
-              {user.email}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="flex w-full cursor-pointer items-center gap-2 text-destructive"
-                >
-                  <LogOut className="size-4" />
-                  Sign out
-                </button>
-              </form>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : (
-        <Button asChild size="sm">
-          <Link href="/auth/login">Sign in</Link>
-        </Button>
-      )}
-    </div>
+    <header className="fixed top-0 inset-x-0 z-50 h-14 flex items-center px-6 border-b border-border/60 bg-background/80 backdrop-blur-sm">
+      <Link href="/" className="flex items-center gap-2 mr-auto">
+        <div className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <Shield className="size-3.5" />
+        </div>
+        <span className="font-semibold text-sm tracking-tight">OpenCam</span>
+      </Link>
+      <nav className="flex items-center gap-2">
+        {user ? (
+          <Button asChild size="sm">
+            <Link href="/dashboard">Dashboard</Link>
+          </Button>
+        ) : (
+          <>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/auth/login">Sign in</Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link href="/auth/signup">Get started</Link>
+            </Button>
+          </>
+        )}
+      </nav>
+    </header>
   )
 }

@@ -141,7 +141,7 @@ export default async function Page() {
   const doubled = [...reviews, ...reviews]
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden pt-14">
       {/* ── Hero ── */}
       <section className="relative flex min-h-screen flex-col items-center justify-center px-4 text-center">
         {/* subtle dot grid */}
