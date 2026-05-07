@@ -182,7 +182,7 @@ export default async function Page() {
             </Button>
             <Button asChild variant="outline" size="lg">
               <a
-                href="https://github.com"
+                href="https://github.com/HomeSecuritySystemsIoT/frontend-iot"
                 target="_blank"
                 rel="noopener noreferrer"
               >
