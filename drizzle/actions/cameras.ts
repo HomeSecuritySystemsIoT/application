@@ -24,3 +24,10 @@ export async function setCameraMotionDetection(
     .set({ motionDetection })
     .where(eq(cameras.id, cameraId))
 }
+
+export async function setCameraFps(
+  cameraId: number,
+  fps: number
+): Promise<void> {
+  await db.update(cameras).set({ fps }).where(eq(cameras.id, cameraId))
+}

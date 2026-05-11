@@ -1,11 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { MoreHorizontal, Video, VideoOff, Wifi, X, Maximize2 } from "lucide-react"
+import { MoreHorizontal, Video, VideoOff, Wifi, X, Maximize2, Gauge } from "lucide-react"
 import type { CameraSelect } from "@/drizzle/schema"
 import {
   toggleCameraActive,
   toggleCameraMotionDetection,
+  updateCameraFps,
 } from "@/app/dashboard/actions"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -17,7 +18,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-function useCameraFeed(deviceId: string | null, active: boolean) {
+const FPS_MIN = 1
+const FPS_MAX = 30
+
+function useCameraFeed(deviceId: string | null, active: boolean, fps: number) {
   const [frameSrc, setFrameSrc] = React.useState<string | null>(null)
   const prevUrl = React.useRef<string | null>(null)
 
@@ -27,7 +31,7 @@ function useCameraFeed(deviceId: string | null, active: boolean) {
     const backendWsUrl =
       process.env.NEXT_PUBLIC_BACKEND_WS_URL ??
       `ws://${window.location.hostname}:7890`
-    const ws = new WebSocket(`${backendWsUrl}?device=${deviceId}`)
+    const ws = new WebSocket(`${backendWsUrl}?device=${deviceId}&fps=${fps}`)
     ws.binaryType = "arraybuffer"
 
     ws.onmessage = (event) => {
@@ -44,7 +48,7 @@ function useCameraFeed(deviceId: string | null, active: boolean) {
       ws.close()
       if (prevUrl.current) URL.revokeObjectURL(prevUrl.current)
     }
-  }, [deviceId, active])
+  }, [deviceId, active, fps])
 
   return frameSrc
 }
@@ -58,9 +62,12 @@ export function CameraCard({
 }) {
   const [isActive, setIsActive] = React.useState(camera.isActive)
   const [motionDetection, setMotionDetection] = React.useState(camera.motionDetection)
+  const [fps, setFps] = React.useState(Math.min(Math.max(camera.fps ?? 1, FPS_MIN), FPS_MAX))
+  const [fpsInput, setFpsInput] = React.useState(String(fps))
   const [isPending, startTransition] = React.useTransition()
   const [zoomed, setZoomed] = React.useState(false)
-  const frameSrc = useCameraFeed(camera.deviceId ?? null, isActive)
+  const frameSrc = useCameraFeed(camera.deviceId ?? null, isActive, fps)
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function handleActiveChange(checked: boolean) {
     setIsActive(checked)
@@ -73,6 +80,34 @@ export function CameraCard({
     setMotionDetection(checked)
     startTransition(async () => {
       await toggleCameraMotionDetection(camera.id, checked, path)
+    })
+  }
+
+  function handleFpsInput(raw: string) {
+    setFpsInput(raw)
+    const parsed = parseInt(raw, 10)
+    if (!Number.isFinite(parsed)) return
+    const clamped = Math.min(Math.max(parsed, FPS_MIN), FPS_MAX)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      setFps(clamped)
+      setFpsInput(String(clamped))
+      startTransition(async () => {
+        await updateCameraFps(camera.id, clamped, path)
+      })
+    }, 600)
+  }
+
+  function commitFpsInput() {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    const parsed = parseInt(fpsInput, 10)
+    const clamped = Number.isFinite(parsed)
+      ? Math.min(Math.max(parsed, FPS_MIN), FPS_MAX)
+      : fps
+    setFps(clamped)
+    setFpsInput(String(clamped))
+    startTransition(async () => {
+      await updateCameraFps(camera.id, clamped, path)
     })
   }
 
@@ -167,6 +202,27 @@ export function CameraCard({
                     disabled={isPending}
                   />
                 </div>
+                <DropdownMenuSeparator />
+                <div className="px-2 py-2">
+                  <div className="flex items-center gap-2 text-sm mb-2">
+                    <Gauge className="size-3.5 text-muted-foreground" />
+                    Frame rate
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={FPS_MIN}
+                      max={FPS_MAX}
+                      value={fpsInput}
+                      onChange={(e) => handleFpsInput(e.target.value)}
+                      onBlur={commitFpsInput}
+                      onKeyDown={(e) => e.key === "Enter" && commitFpsInput()}
+                      disabled={isPending}
+                      className="w-16 rounded border border-input bg-background px-2 py-1 text-sm text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <span className="text-xs text-muted-foreground">fps ({FPS_MIN}–{FPS_MAX})</span>
+                  </div>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -197,13 +253,13 @@ export function CameraCard({
       {zoomed && (
         <div className="cam-zoom-overlay" onClick={() => setZoomed(false)}>
           <div className="cam-zoom-box" onClick={(e) => e.stopPropagation()}>
-            <div className="relative aspect-video bg-neutral-950">
+            <div className="relative bg-neutral-950 flex items-center justify-center">
               {isActive && frameSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={frameSrc}
                   alt={`${camera.name} feed`}
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="max-h-[70vh] w-full object-contain"
                 />
               ) : isActive ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-neutral-600">

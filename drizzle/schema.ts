@@ -72,6 +72,7 @@ export const cameras = pgTable(
     deviceId: varchar("device_id", { length: 64 }),
     isActive: boolean("is_active").notNull().default(true),
     motionDetection: boolean("motion_detection").notNull().default(false),
+    fps: integer("fps").notNull().default(1),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (t) => ({

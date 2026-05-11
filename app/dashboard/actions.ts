@@ -8,6 +8,7 @@ import { createRoomRecord } from "@/drizzle/actions/rooms"
 import {
   setCameraActive,
   setCameraMotionDetection,
+  setCameraFps,
 } from "@/drizzle/actions/cameras"
 import { createClaimToken } from "@/drizzle/actions/claimTokens"
 
@@ -116,6 +117,15 @@ export async function toggleCameraMotionDetection(
   path: string
 ): Promise<void> {
   await setCameraMotionDetection(cameraId, motionDetection)
+  revalidatePath(path)
+}
+
+export async function updateCameraFps(
+  cameraId: number,
+  fps: number,
+  path: string
+): Promise<void> {
+  await setCameraFps(cameraId, fps)
   revalidatePath(path)
 }
 
